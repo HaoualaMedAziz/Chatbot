@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot Symfony</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f4f4f4; /* couleur autour de l’image */
+            background-image: url('/images/background.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: contain; /* réduit l’image sans la couper */
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #chatbox {
+    position: absolute; /* Permet de le positionner librement */
+    top: 136px;           /* Distance depuis le haut */
+    left: 630px;          /* Distance depuis la gauche */
+    max-width: 200px;    /* Taille plus raisonnable que 150px */
+    width: 40%;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+
+        .message {
+            margin: 1rem 0;
+        }
+
+        .user {
+            color: blue;
+        }
+
+        .bot {
+            color: green;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            background-color: #46599C;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #35447a;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <h2>💬 Chatbot By Mohamed Aziz HAOUALA</h2>
+        <div id="messages"></div>
+        <form id="chat-form">
+            <input type="text" id="message" placeholder="Votre message..." required>
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const msg = document.getElementById('message').value;
+            const container = document.getElementById('messages');
+            container.innerHTML += `<div class="message user"><strong>Vous:</strong> ${msg}</div>`;
+            document.getElementById('message').value = '';
+
+            fetch('/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ message: msg })
+            })
+            .then(res => res.json())
+            .then(data => {
+                container.innerHTML += `<div class="message bot"><strong>Bot:</strong> ${data.reply}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>

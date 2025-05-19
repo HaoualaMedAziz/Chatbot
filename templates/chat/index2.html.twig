@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Chatbot Symfony avec Carte</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #chatbox {
+            margin-top: 40px;
+            max-width: 700px;
+            width: 80%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .map-title {
+            margin-top: 30px;
+        }
+
+        .map-container {
+            width: 80%;
+            height: 400px;
+            margin-top: 10px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        .message {
+            margin: 1rem 0;
+        }
+
+        .user {
+            color: blue;
+        }
+
+        .bot {
+            color: green;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            background-color: #46599C;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #35447a;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chatbox">
+        <h2>💬 Chatbot By Mohamed Aziz HAOUALA</h2>
+        <div id="messages"></div>
+        <form id="chat-form">
+            <input type="text" id="message" placeholder="Votre message..." required>
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
+
+    <!-- Carte Bremen -->
+    <h2 class="map-title">📍 Ci-dessous l'adresse de Bremen</h2>
+    <div id="map-bremen" class="map-container"></div>
+
+    <!-- Carte Sousse -->
+    <h2 class="map-title">📍 Ci-dessous l'adresse de Sfeya, Sousse</h2>
+    <div id="map-sfeya" class="map-container"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        window.onload = function () {
+            // Carte Bremen
+            const latBremen = 53.056049;
+            const lonBremen = 8.884370;
+            const mapBremen = L.map('map-bremen').setView([latBremen, lonBremen], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+            }).addTo(mapBremen);
+            L.marker([latBremen, lonBremen]).addTo(mapBremen)
+                .bindPopup("📍 Adresse : Bremen, Allemagne")
+                .openPopup();
+
+            // Carte Sfeya, Sousse
+            const latSfeya = 35.825390;
+            const lonSfeya = 10.636990;
+            const mapSfeya = L.map('map-sfeya').setView([latSfeya, lonSfeya], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+            }).addTo(mapSfeya);
+            L.marker([latSfeya, lonSfeya]).addTo(mapSfeya)
+                .bindPopup("📍 Adresse : Jardin Sfeya, Rue Abdelkader Ghariani, Sousse")
+                .openPopup();
+        };
+    </script>
+
+    <!-- Chatbot interaction -->
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const msg = document.getElementById('message').value;
+            const container = document.getElementById('messages');
+            container.innerHTML += `<div class="message user"><strong>Vous:</strong> ${msg}</div>`;
+            document.getElementById('message').value = '';
+
+            fetch('/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ message: msg })
+            })
+            .then(res => res.json())
+            .then(data => {
+                container.innerHTML += `<div class="message bot"><strong>Bot:</strong> ${data.reply}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>
